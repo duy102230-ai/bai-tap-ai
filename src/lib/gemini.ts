@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export type GeneratedQuestion = {
-  type: "multiple_choice" | "essay" | "fill_blank";
+  type: "multiple_choice" | "essay" | "fill_blank" | "true_false";
   content: string;
   options?: string[];
   answer: string;
@@ -9,14 +9,22 @@ export type GeneratedQuestion = {
 };
 
 const SYSTEM_PROMPT = `Bạn là trợ lý giáo dục. Nhiệm vụ: đọc nội dung đề bài/bài học trong ảnh hoặc PDF được cung cấp,
-sau đó trích xuất hoặc soạn lại thành danh sách câu hỏi trắc nghiệm (multiple_choice) hoặc tự luận ngắn (essay) hoặc điền khuyết (fill_blank).
+sau đó trích xuất hoặc soạn lại thành danh sách câu hỏi trắc nghiệm (multiple_choice), tự luận ngắn (essay), điền khuyết (fill_blank),
+hoặc câu hỏi Đúng/Sai kiểu THPT mới (true_false).
 
-Yêu cầu:
-- Nếu đề gốc đã có câu hỏi trắc nghiệm sẵn, hãy trích xuất chính xác câu hỏi, các đáp án A/B/C/D và xác định đáp án đúng dựa vào nội dung.
+Yêu cầu chung:
+- Nếu đề gốc đã có câu hỏi sẵn, hãy trích xuất chính xác nội dung và xác định đáp án đúng dựa vào nội dung.
 - Nếu không xác định được đáp án đúng chắc chắn, hãy suy luận dựa trên kiến thức chuẩn của môn học.
-- Với câu trắc nghiệm: field "options" là mảng 4 chuỗi dạng "A. nội dung", "B. nội dung", ...; field "answer" chỉ chứa chữ cái đúng (vd "A").
-- Với câu tự luận/điền khuyết: field "answer" là đáp án mẫu ngắn gọn.
 - Luôn có "explanation" giải thích ngắn gọn vì sao đáp án đó đúng.
+
+Quy tắc theo từng loại:
+- multiple_choice: field "options" là mảng 4 chuỗi dạng "A. nội dung", "B. nội dung", ...; field "answer" chỉ chứa chữ cái đúng (vd "A").
+- essay / fill_blank: field "answer" là đáp án mẫu ngắn gọn, không cần "options".
+- true_false: dùng khi đề có 1 câu hỏi/tình huống chính kèm 4 mệnh đề nhỏ a, b, c, d mà học sinh phải xác định từng mệnh đề Đúng hay Sai (thường gặp ở đề Toán/Lý/Hóa THPT mới).
+  + field "content" là nội dung câu hỏi/tình huống chính.
+  + field "options" là mảng đúng 4 chuỗi mệnh đề dạng "a) nội dung", "b) nội dung", "c) nội dung", "d) nội dung".
+  + field "answer" là một chuỗi JSON của mảng 4 giá trị "true"/"false" tương ứng theo thứ tự a,b,c,d, ví dụ: "[\\"true\\",\\"false\\",\\"true\\",\\"false\\"]".
+
 - QUAN TRỌNG: TUYỆT ĐỐI KHÔNG dùng cú pháp LaTeX (không dùng dấu $, \\infty, \\neq, \\frac, ^, _, v.v.). Toàn bộ công thức toán phải viết bằng ký hiệu Unicode thông thường có thể đọc trực tiếp, ví dụ: dùng "∞" thay vì "\\infty", "≠" thay vì "\\neq", "≤" "≥" "±" "√" "π" thay cho ký hiệu LaTeX tương ứng, số mũ viết dạng "x²" hoặc "x^2" bằng chữ thường (không dùng dấu ^), phân số viết dạng "a/b".
 
 Trả về DUY NHẤT một JSON array hợp lệ, không kèm markdown, không kèm giải thích ngoài JSON, theo đúng cấu trúc:
@@ -26,6 +34,13 @@ Trả về DUY NHẤT một JSON array hợp lệ, không kèm markdown, không 
     "content": "...",
     "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
     "answer": "A",
+    "explanation": "..."
+  },
+  {
+    "type": "true_false",
+    "content": "...",
+    "options": ["a) ...", "b) ...", "c) ...", "d) ..."],
+    "answer": "[\\"true\\",\\"false\\",\\"true\\",\\"false\\"]",
     "explanation": "..."
   }
 ]`;

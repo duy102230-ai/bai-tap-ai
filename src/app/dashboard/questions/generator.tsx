@@ -4,12 +4,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type GeneratedQuestion = {
-  type: "multiple_choice" | "essay" | "fill_blank";
+  type: "multiple_choice" | "essay" | "fill_blank" | "true_false";
   content: string;
   options?: string[];
   answer: string;
   explanation?: string;
 };
+
+const typeLabel: Record<string, string> = {
+  multiple_choice: "Trắc nghiệm",
+  essay: "Tự luận",
+  fill_blank: "Điền khuyết",
+  true_false: "Đúng/Sai",
+};
+
+function parseTrueFalseAnswer(answer: string): string[] {
+  try {
+    const arr = JSON.parse(answer);
+    if (Array.isArray(arr)) return arr.map((v) => String(v));
+  } catch {
+    // fall through
+  }
+  return ["false", "false", "false", "false"];
+}
 
 export default function QuestionGenerator() {
   const router = useRouter();
@@ -65,6 +82,17 @@ export default function QuestionGenerator() {
 
   function removeQuestion(index: number) {
     setQuestions((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateTrueFalseAnswer(qIndex: number, subIndex: number, value: string) {
+    setQuestions((prev) =>
+      prev.map((q, i) => {
+        if (i !== qIndex) return q;
+        const arr = parseTrueFalseAnswer(q.answer);
+        arr[subIndex] = value;
+        return { ...q, answer: JSON.stringify(arr) };
+      })
+    );
   }
 
   async function handleSaveAll() {
@@ -163,7 +191,7 @@ export default function QuestionGenerator() {
               <div key={i} className="rounded-lg border border-zinc-200 p-4">
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-xs font-medium text-zinc-500 uppercase">
-                    Câu {i + 1} · {q.type === "multiple_choice" ? "Trắc nghiệm" : q.type === "essay" ? "Tự luận" : "Điền khuyết"}
+                    Câu {i + 1} · {typeLabel[q.type] || q.type}
                   </span>
                   <button
                     onClick={() => removeQuestion(i)}
@@ -178,26 +206,54 @@ export default function QuestionGenerator() {
                   className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm mb-2"
                   rows={2}
                 />
-                {q.options && (
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    {q.options.map((opt, oi) => (
-                      <input
-                        key={oi}
-                        value={opt}
-                        onChange={(e) => updateOption(i, oi, e.target.value)}
-                        className="rounded border border-zinc-300 px-2 py-1 text-sm"
-                      />
-                    ))}
+
+                {q.type === "true_false" && q.options ? (
+                  <div className="space-y-2 mb-2">
+                    {q.options.map((opt, oi) => {
+                      const answers = parseTrueFalseAnswer(q.answer);
+                      return (
+                        <div key={oi} className="flex gap-2 items-center">
+                          <input
+                            value={opt}
+                            onChange={(e) => updateOption(i, oi, e.target.value)}
+                            className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm"
+                          />
+                          <select
+                            value={answers[oi] === "true" ? "true" : "false"}
+                            onChange={(e) => updateTrueFalseAnswer(i, oi, e.target.value)}
+                            className="rounded border border-zinc-300 px-2 py-1 text-sm"
+                          >
+                            <option value="true">Đúng</option>
+                            <option value="false">Sai</option>
+                          </select>
+                        </div>
+                      );
+                    })}
                   </div>
+                ) : (
+                  <>
+                    {q.options && (
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        {q.options.map((opt, oi) => (
+                          <input
+                            key={oi}
+                            value={opt}
+                            onChange={(e) => updateOption(i, oi, e.target.value)}
+                            className="rounded border border-zinc-300 px-2 py-1 text-sm"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2 items-center">
+                      <label className="text-xs text-zinc-500">Đáp án đúng:</label>
+                      <input
+                        value={q.answer}
+                        onChange={(e) => updateQuestion(i, { answer: e.target.value })}
+                        className="rounded border border-zinc-300 px-2 py-1 text-sm w-24"
+                      />
+                    </div>
+                  </>
                 )}
-                <div className="flex gap-2 items-center">
-                  <label className="text-xs text-zinc-500">Đáp án đúng:</label>
-                  <input
-                    value={q.answer}
-                    onChange={(e) => updateQuestion(i, { answer: e.target.value })}
-                    className="rounded border border-zinc-300 px-2 py-1 text-sm w-24"
-                  />
-                </div>
               </div>
             ))}
           </div>

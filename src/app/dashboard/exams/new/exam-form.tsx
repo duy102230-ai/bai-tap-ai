@@ -16,6 +16,7 @@ const typeLabel: Record<string, string> = {
   multiple_choice: "Trắc nghiệm",
   essay: "Tự luận",
   fill_blank: "Điền khuyết",
+  true_false: "Đúng/Sai",
 };
 
 export default function ExamForm({ questions }: { questions: Question[] }) {

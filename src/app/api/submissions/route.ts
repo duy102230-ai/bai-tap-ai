@@ -27,8 +27,24 @@ export async function POST(req: NextRequest) {
       const studentAnswer = (answers[q.id] || "").toString().trim().toLowerCase();
       const correctAnswer = q.answer.trim().toLowerCase();
       if (studentAnswer === correctAnswer) score += 1;
+    } else if (q.type === "true_false") {
+      gradable += 1;
+      try {
+        const correctArr: string[] = JSON.parse(q.answer);
+        const studentArr: string[] = JSON.parse(answers[q.id] || "[]");
+        const total = correctArr.length || 1;
+        let correctCount = 0;
+        for (let i = 0; i < total; i++) {
+          if ((studentArr[i] || "") === (correctArr[i] || "")) correctCount += 1;
+        }
+        score += correctCount / total;
+      } catch {
+        // không tính điểm nếu dữ liệu không hợp lệ
+      }
     }
   }
+
+  score = Math.round(score * 100) / 100;
 
   const submission = await prisma.submission.create({
     data: {

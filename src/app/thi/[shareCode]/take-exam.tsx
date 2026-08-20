@@ -31,6 +31,30 @@ export default function TakeExam({
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   }
 
+  function setSubAnswer(questionId: string, subIndex: number, value: string) {
+    setAnswers((prev) => {
+      let arr: string[];
+      try {
+        const parsed = JSON.parse(prev[questionId] || "[]");
+        arr = Array.isArray(parsed) ? parsed : ["", "", "", ""];
+      } catch {
+        arr = ["", "", "", ""];
+      }
+      while (arr.length < 4) arr.push("");
+      arr[subIndex] = value;
+      return { ...prev, [questionId]: JSON.stringify(arr) };
+    });
+  }
+
+  function getSubAnswers(questionId: string): string[] {
+    try {
+      const parsed = JSON.parse(answers[questionId] || "[]");
+      return Array.isArray(parsed) ? parsed : ["", "", "", ""];
+    } catch {
+      return ["", "", "", ""];
+    }
+  }
+
   async function handleSubmit() {
     setSubmitting(true);
     setError("");
@@ -99,7 +123,38 @@ export default function TakeExam({
             <p className="text-sm font-medium text-zinc-900 mb-3">
               Câu {i + 1}. {q.content}
             </p>
-            {q.options ? (
+            {q.type === "true_false" && q.options ? (
+              <div className="space-y-3">
+                {q.options.map((opt, oi) => {
+                  const subAnswers = getSubAnswers(q.id);
+                  return (
+                    <div key={oi} className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-zinc-700">{opt}</span>
+                      <div className="flex gap-3 shrink-0">
+                        <label className="flex items-center gap-1 text-sm text-zinc-700 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`${q.id}-${oi}`}
+                            checked={subAnswers[oi] === "true"}
+                            onChange={() => setSubAnswer(q.id, oi, "true")}
+                          />
+                          Đúng
+                        </label>
+                        <label className="flex items-center gap-1 text-sm text-zinc-700 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`${q.id}-${oi}`}
+                            checked={subAnswers[oi] === "false"}
+                            onChange={() => setSubAnswer(q.id, oi, "false")}
+                          />
+                          Sai
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : q.options ? (
               <div className="space-y-2">
                 {q.options.map((opt, oi) => {
                   const letter = opt.trim().charAt(0);

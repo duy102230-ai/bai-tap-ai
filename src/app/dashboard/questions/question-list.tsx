@@ -15,7 +15,18 @@ const typeLabel: Record<string, string> = {
   multiple_choice: "Trắc nghiệm",
   essay: "Tự luận",
   fill_blank: "Điền khuyết",
+  true_false: "Đúng/Sai",
 };
+
+function parseTrueFalseAnswer(answer: string): string[] {
+  try {
+    const arr = JSON.parse(answer);
+    if (Array.isArray(arr)) return arr.map((v) => String(v));
+  } catch {
+    // fall through
+  }
+  return [];
+}
 
 export default function QuestionList({ questions }: { questions: Question[] }) {
   if (questions.length === 0) {
@@ -46,14 +57,33 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
               )}
             </div>
             <p className="text-sm text-zinc-900 mb-1.5">{q.content}</p>
-            {options && (
+            {q.type === "true_false" && options ? (
               <ul className="text-sm text-zinc-600 mb-1.5 space-y-0.5">
-                {options.map((opt, i) => (
-                  <li key={i}>{opt}</li>
-                ))}
+                {options.map((opt, i) => {
+                  const answers = parseTrueFalseAnswer(q.answer);
+                  const isTrue = answers[i] === "true";
+                  return (
+                    <li key={i} className="flex items-center gap-2">
+                      <span>{opt}</span>
+                      <span className={isTrue ? "text-green-700 text-xs" : "text-red-600 text-xs"}>
+                        {isTrue ? "Đúng" : "Sai"}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
+            ) : (
+              <>
+                {options && (
+                  <ul className="text-sm text-zinc-600 mb-1.5 space-y-0.5">
+                    {options.map((opt, i) => (
+                      <li key={i}>{opt}</li>
+                    ))}
+                  </ul>
+                )}
+                <p className="text-xs text-green-700">Đáp án: {q.answer}</p>
+              </>
             )}
-            <p className="text-xs text-green-700">Đáp án: {q.answer}</p>
           </div>
         );
       })}

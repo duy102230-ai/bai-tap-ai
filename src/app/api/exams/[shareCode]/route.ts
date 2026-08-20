@@ -27,6 +27,7 @@ export async function GET(
     type: eq.question.type,
     content: eq.question.content,
     options: eq.question.options ? JSON.parse(eq.question.options) : null,
+    imageUrl: eq.question.imageUrl?.startsWith("data:") ? eq.question.imageUrl : null,
   }));
 
   return NextResponse.json({

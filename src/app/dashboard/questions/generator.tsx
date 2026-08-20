@@ -9,6 +9,7 @@ type GeneratedQuestion = {
   options?: string[];
   answer: string;
   explanation?: string;
+  hasVisual?: boolean;
 };
 
 const typeLabel: Record<string, string> = {
@@ -37,6 +38,7 @@ export default function QuestionGenerator() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
+  const [sourceImage, setSourceImage] = useState<string | null>(null);
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -44,6 +46,7 @@ export default function QuestionGenerator() {
     setError("");
     setLoading(true);
     setQuestions([]);
+    setSourceImage(null);
 
     try {
       const formData = new FormData();
@@ -58,6 +61,7 @@ export default function QuestionGenerator() {
         return;
       }
       setQuestions(data.questions);
+      setSourceImage(data.sourceImage || null);
     } finally {
       setLoading(false);
     }
@@ -110,6 +114,7 @@ export default function QuestionGenerator() {
           subject,
           topic,
           sourceFile: file?.name,
+          sourceImage,
           questions,
         }),
       });
@@ -120,6 +125,7 @@ export default function QuestionGenerator() {
       }
       setQuestions([]);
       setFile(null);
+      setSourceImage(null);
       router.refresh();
     } finally {
       setSaving(false);
@@ -173,6 +179,13 @@ export default function QuestionGenerator() {
 
       {questions.length > 0 && (
         <div>
+          {sourceImage && (
+            <div className="mb-4">
+              <p className="text-xs text-zinc-500 mb-1">Ảnh đề gốc (tick &quot;Kèm hình&quot; ở câu nào cần xem hình mới trả lời được):</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sourceImage} alt="Đề gốc" className="max-w-xs rounded border border-zinc-200" />
+            </div>
+          )}
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm text-zinc-600">
               AI sinh được {questions.length} câu hỏi. Kiểm tra/chỉnh sửa rồi lưu vào ngân hàng.
@@ -193,12 +206,24 @@ export default function QuestionGenerator() {
                   <span className="text-xs font-medium text-zinc-500 uppercase">
                     Câu {i + 1} · {typeLabel[q.type] || q.type}
                   </span>
-                  <button
-                    onClick={() => removeQuestion(i)}
-                    className="text-xs text-red-600 hover:underline"
-                  >
-                    Xóa
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {sourceImage && (
+                      <label className="flex items-center gap-1 text-xs text-zinc-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!q.hasVisual}
+                          onChange={(e) => updateQuestion(i, { hasVisual: e.target.checked })}
+                        />
+                        Kèm hình
+                      </label>
+                    )}
+                    <button
+                      onClick={() => removeQuestion(i)}
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Xóa
+                    </button>
+                  </div>
                 </div>
                 <textarea
                   value={q.content}

@@ -8,6 +8,7 @@ type Question = {
   content: string;
   options: string | null;
   answer: string;
+  imageUrl: string | null;
   createdAt: string;
 };
 
@@ -57,6 +58,14 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
               )}
             </div>
             <p className="text-sm text-zinc-900 mb-1.5">{q.content}</p>
+            {q.imageUrl?.startsWith("data:") && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={q.imageUrl}
+                alt="Hình minh họa"
+                className="max-w-xs rounded border border-zinc-200 mb-1.5"
+              />
+            )}
             {q.type === "true_false" && options ? (
               <ul className="text-sm text-zinc-600 mb-1.5 space-y-0.5">
                 {options.map((opt, i) => {

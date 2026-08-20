@@ -7,6 +7,7 @@ type Question = {
   type: string;
   content: string;
   options: string[] | null;
+  imageUrl: string | null;
 };
 
 export default function TakeExam({
@@ -123,6 +124,14 @@ export default function TakeExam({
             <p className="text-sm font-medium text-zinc-900 mb-3">
               Câu {i + 1}. {q.content}
             </p>
+            {q.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={q.imageUrl}
+                alt="Hình minh họa"
+                className="max-w-full rounded border border-zinc-200 mb-3"
+              />
+            )}
             {q.type === "true_false" && q.options ? (
               <div className="space-y-3">
                 {q.options.map((opt, oi) => {

@@ -10,6 +10,7 @@ type Question = {
   type: string;
   content: string;
   options: string | null;
+  imageUrl: string | null;
 };
 
 const typeLabel: Record<string, string> = {
@@ -167,6 +168,14 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
                   {typeLabel[q.type] || q.type} · {q.subject}
                 </span>
                 <p className="text-sm text-zinc-900">{q.content}</p>
+                {q.imageUrl?.startsWith("data:") && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={q.imageUrl}
+                    alt="Hình minh họa"
+                    className="max-w-[200px] rounded border border-zinc-200 mt-1"
+                  />
+                )}
                 {options && (
                   <ul className="text-xs text-zinc-600 mt-1">
                     {options.map((opt, i) => (

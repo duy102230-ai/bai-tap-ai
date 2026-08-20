@@ -10,10 +10,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { subject, topic, sourceFile, questions } = body as {
+  const { subject, topic, sourceImage, questions } = body as {
     subject: string;
     topic?: string;
-    sourceFile?: string;
+    sourceImage?: string | null;
     questions: GeneratedQuestion[];
   };
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
           options: q.options ? JSON.stringify(q.options) : null,
           answer: q.answer,
           explanation: q.explanation || null,
-          imageUrl: sourceFile || null,
+          imageUrl: q.hasVisual && sourceImage ? sourceImage : null,
         },
       })
     )

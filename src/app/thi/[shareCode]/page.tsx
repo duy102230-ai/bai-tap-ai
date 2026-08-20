@@ -26,6 +26,7 @@ export default async function ExamTakingPage({
     type: eq.question.type,
     content: eq.question.content,
     options: eq.question.options ? (JSON.parse(eq.question.options) as string[]) : null,
+    imageUrl: eq.question.imageUrl?.startsWith("data:") ? eq.question.imageUrl : null,
   }));
 
   return (

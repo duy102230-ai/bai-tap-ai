@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import sharp from "sharp";
 
 export type GeneratedQuestion = {
   type: "multiple_choice" | "essay" | "fill_blank" | "true_false";
@@ -6,6 +7,7 @@ export type GeneratedQuestion = {
   options?: string[];
   answer: string;
   explanation?: string;
+  hasVisual?: boolean;
 };
 
 const SYSTEM_PROMPT = `Bạn là trợ lý giáo dục. Nhiệm vụ: đọc nội dung đề bài/bài học trong ảnh hoặc PDF được cung cấp,
@@ -16,6 +18,7 @@ Yêu cầu chung:
 - Nếu đề gốc đã có câu hỏi sẵn, hãy trích xuất chính xác nội dung và xác định đáp án đúng dựa vào nội dung.
 - Nếu không xác định được đáp án đúng chắc chắn, hãy suy luận dựa trên kiến thức chuẩn của môn học.
 - Luôn có "explanation" giải thích ngắn gọn vì sao đáp án đó đúng.
+- field "hasVisual": đặt là true nếu câu hỏi PHỤ THUỘC vào một hình ảnh/đồ thị/bảng biến thiên/hình vẽ trong đề gốc mà học sinh BẮT BUỘC phải nhìn thấy hình đó mới trả lời được (ví dụ đề ghi "như hình vẽ", "theo đồ thị sau", "bảng biến thiên sau đây"). Đặt false nếu câu hỏi chỉ cần đọc chữ là đủ, không cần xem hình.
 
 Quy tắc theo từng loại:
 - multiple_choice: field "options" là mảng 4 chuỗi dạng "A. nội dung", "B. nội dung", ...; field "answer" chỉ chứa chữ cái đúng (vd "A").
@@ -34,26 +37,47 @@ Trả về DUY NHẤT một JSON array hợp lệ, không kèm markdown, không 
     "content": "...",
     "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
     "answer": "A",
-    "explanation": "..."
+    "explanation": "...",
+    "hasVisual": false
   },
   {
     "type": "true_false",
     "content": "...",
     "options": ["a) ...", "b) ...", "c) ...", "d) ..."],
     "answer": "[\\"true\\",\\"false\\",\\"true\\",\\"false\\"]",
-    "explanation": "..."
+    "explanation": "...",
+    "hasVisual": true
   }
 ]`;
+
+export type GenerateResult = {
+  questions: GeneratedQuestion[];
+  sourceImage: string | null;
+};
 
 export async function generateQuestionsFromFile(
   fileBuffer: Buffer,
   mimeType: string
-): Promise<GeneratedQuestion[]> {
+): Promise<GenerateResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error(
       "Chưa cấu hình GEMINI_API_KEY trong .env.local. Vui lòng thêm API key trước khi dùng tính năng AI."
     );
+  }
+
+  let inputBuffer = fileBuffer;
+  let inputMimeType = mimeType;
+  let sourceImage: string | null = null;
+
+  if (mimeType.startsWith("image/")) {
+    const resized = await sharp(fileBuffer)
+      .resize({ width: 1200, withoutEnlargement: true })
+      .jpeg({ quality: 78 })
+      .toBuffer();
+    inputBuffer = resized;
+    inputMimeType = "image/jpeg";
+    sourceImage = `data:image/jpeg;base64,${resized.toString("base64")}`;
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -63,8 +87,8 @@ export async function generateQuestionsFromFile(
     SYSTEM_PROMPT,
     {
       inlineData: {
-        data: fileBuffer.toString("base64"),
-        mimeType,
+        data: inputBuffer.toString("base64"),
+        mimeType: inputMimeType,
       },
     },
   ]);
@@ -87,5 +111,5 @@ export async function generateQuestionsFromFile(
     throw new Error("AI trả về dữ liệu không đúng định dạng danh sách câu hỏi.");
   }
 
-  return parsed;
+  return { questions: parsed, sourceImage };
 }

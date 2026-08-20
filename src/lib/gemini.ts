@@ -17,6 +17,7 @@ Yêu cầu:
 - Với câu trắc nghiệm: field "options" là mảng 4 chuỗi dạng "A. nội dung", "B. nội dung", ...; field "answer" chỉ chứa chữ cái đúng (vd "A").
 - Với câu tự luận/điền khuyết: field "answer" là đáp án mẫu ngắn gọn.
 - Luôn có "explanation" giải thích ngắn gọn vì sao đáp án đó đúng.
+- QUAN TRỌNG: TUYỆT ĐỐI KHÔNG dùng cú pháp LaTeX (không dùng dấu $, \\infty, \\neq, \\frac, ^, _, v.v.). Toàn bộ công thức toán phải viết bằng ký hiệu Unicode thông thường có thể đọc trực tiếp, ví dụ: dùng "∞" thay vì "\\infty", "≠" thay vì "\\neq", "≤" "≥" "±" "√" "π" thay cho ký hiệu LaTeX tương ứng, số mũ viết dạng "x²" hoặc "x^2" bằng chữ thường (không dùng dấu ^), phân số viết dạng "a/b".
 
 Trả về DUY NHẤT một JSON array hợp lệ, không kèm markdown, không kèm giải thích ngoài JSON, theo đúng cấu trúc:
 [

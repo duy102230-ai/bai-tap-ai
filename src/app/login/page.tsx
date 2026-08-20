@@ -40,79 +40,88 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm border border-zinc-200"
-      >
-        <h1 className="text-2xl font-semibold mb-6 text-zinc-900">
-          {mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
-        </h1>
+    <div className="flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 via-white to-white px-4 py-12">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center gap-2 mb-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-2xl shadow-lg shadow-blue-600/30">
+            📚
+          </div>
+          <span className="font-semibold text-slate-900">Bài tập AI</span>
+        </div>
 
-        {mode === "register" && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl bg-white p-8 shadow-lg shadow-slate-200/60 border border-slate-200"
+        >
+          <h1 className="text-2xl font-bold mb-6 text-slate-900">
+            {mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
+          </h1>
+
+          {mode === "register" && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Họ tên
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          )}
+
           <div className="mb-4">
-            <label className="block text-sm font-medium text-zinc-700 mb-1">
-              Họ tên
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Email
             </label>
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-        )}
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-zinc-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-          />
-        </div>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Mật khẩu
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-zinc-700 mb-1">
-            Mật khẩu
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-          />
-        </div>
+          {error && (
+            <p className="mb-4 text-sm text-red-600">{error}</p>
+          )}
 
-        {error && (
-          <p className="mb-4 text-sm text-red-600">{error}</p>
-        )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-white font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:opacity-50 transition-all"
+          >
+            {loading ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Đăng ký"}
+          </button>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-zinc-900 py-2.5 text-white font-medium hover:bg-zinc-700 disabled:opacity-50"
-        >
-          {loading ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Đăng ký"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode(mode === "login" ? "register" : "login")}
-          className="w-full mt-3 text-sm text-zinc-600 hover:underline"
-        >
-          {mode === "login"
-            ? "Chưa có tài khoản? Đăng ký"
-            : "Đã có tài khoản? Đăng nhập"}
-        </button>
-      </form>
+          <button
+            type="button"
+            onClick={() => setMode(mode === "login" ? "register" : "login")}
+            className="w-full mt-3 text-sm text-slate-600 hover:text-blue-700"
+          >
+            {mode === "login"
+              ? "Chưa có tài khoản? Đăng ký"
+              : "Đã có tài khoản? Đăng nhập"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

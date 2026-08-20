@@ -86,16 +86,16 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 p-6">
         <p className="text-green-800 font-medium mb-2">Tạo đề thành công!</p>
-        <p className="text-sm text-zinc-700 mb-3">Gửi link này cho học sinh làm bài:</p>
+        <p className="text-sm text-slate-700 mb-3">Gửi link này cho học sinh làm bài:</p>
         <div className="flex gap-2">
           <input
             readOnly
             value={createdLink}
-            className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm bg-white"
+            className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm bg-white"
           />
           <button
             onClick={() => navigator.clipboard.writeText(createdLink)}
-            className="rounded bg-zinc-900 px-4 py-2 text-white text-sm"
+            className="rounded bg-blue-600 px-4 py-2 text-white text-sm"
           >
             Copy
           </button>
@@ -106,34 +106,34 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 mb-6">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 mb-6">
         <div className="mb-4">
-          <label className="block text-sm text-zinc-700 mb-1">Tiêu đề đề thi</label>
+          <label className="block text-sm text-slate-700 mb-1">Tiêu đề đề thi</label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Kiểm tra 15 phút - Chương 1"
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm text-zinc-700 mb-1">Mô tả (tùy chọn)</label>
+          <label className="block text-sm text-slate-700 mb-1">Mô tả (tùy chọn)</label>
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-zinc-900">
+        <h2 className="text-lg font-semibold text-slate-900">
           Chọn câu hỏi ({selected.size} đã chọn)
         </h2>
         <select
           value={subjectFilter}
           onChange={(e) => setSubjectFilter(e.target.value)}
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
         >
           <option value="all">Tất cả môn</option>
           {subjects.map((s) => (
@@ -146,7 +146,7 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
 
       <div className="space-y-2 mb-6">
         {filtered.length === 0 && (
-          <p className="text-sm text-zinc-500">Chưa có câu hỏi nào trong ngân hàng.</p>
+          <p className="text-sm text-slate-500">Chưa có câu hỏi nào trong ngân hàng.</p>
         )}
         {filtered.map((q) => {
           const options: string[] | null = q.options ? JSON.parse(q.options) : null;
@@ -154,7 +154,7 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
             <label
               key={q.id}
               className={`flex gap-3 rounded-lg border p-3 cursor-pointer ${
-                selected.has(q.id) ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 bg-white"
+                selected.has(q.id) ? "border-slate-900 bg-slate-50" : "border-slate-200 bg-white"
               }`}
             >
               <input
@@ -164,20 +164,20 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
                 className="mt-1"
               />
               <div>
-                <span className="text-xs font-medium text-zinc-500 uppercase">
+                <span className="text-xs font-medium text-slate-500 uppercase">
                   {typeLabel[q.type] || q.type} · {q.subject}
                 </span>
-                <p className="text-sm text-zinc-900">{q.content}</p>
+                <p className="text-sm text-slate-900">{q.content}</p>
                 {q.imageUrl?.startsWith("data:") && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={q.imageUrl}
                     alt="Hình minh họa"
-                    className="max-w-[200px] rounded border border-zinc-200 mt-1"
+                    className="max-w-[200px] rounded border border-slate-200 mt-1"
                   />
                 )}
                 {options && (
-                  <ul className="text-xs text-zinc-600 mt-1">
+                  <ul className="text-xs text-slate-600 mt-1">
                     {options.map((opt, i) => (
                       <li key={i}>{opt}</li>
                     ))}
@@ -194,7 +194,7 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg bg-zinc-900 px-5 py-3 text-white text-sm font-medium hover:bg-zinc-700 disabled:opacity-50"
+        className="rounded-lg bg-blue-600 px-5 py-3 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
       >
         {saving ? "Đang tạo..." : "Tạo đề thi"}
       </button>

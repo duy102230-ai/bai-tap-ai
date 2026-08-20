@@ -11,7 +11,7 @@ export default async function NewExamPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900 mb-6">Tạo đề thi mới</h1>
+      <h1 className="text-2xl font-semibold text-slate-900 mb-6">Tạo đề thi mới</h1>
       <ExamForm questions={questions} />
     </div>
   );

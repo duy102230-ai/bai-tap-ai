@@ -30,7 +30,7 @@ export default async function ExamTakingPage({
   }));
 
   return (
-    <div className="flex flex-1 justify-center bg-zinc-50 px-4 py-10">
+    <div className="flex flex-1 justify-center bg-gradient-to-b from-blue-50 via-white to-white px-4 py-10">
       <div className="w-full max-w-2xl">
         <TakeExam
           shareCode={shareCode}

@@ -15,7 +15,7 @@ export default function CopyLinkButton({ shareCode }: { shareCode: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="text-sm rounded-lg border border-zinc-300 px-3 py-1 hover:bg-zinc-50"
+      className="text-sm rounded-lg border border-slate-300 px-3 py-1 hover:bg-blue-50"
     >
       {copied ? "Đã copy!" : "Copy link"}
     </button>

@@ -15,22 +15,36 @@ export default async function DashboardLayout({
   const teacher = await prisma.teacher.findUnique({ where: { id: teacherId } });
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50">
-      <header className="border-b border-zinc-200 bg-white">
+    <div className="flex flex-1 flex-col bg-slate-50">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <nav className="flex items-center gap-6">
-            <Link href="/dashboard" className="font-semibold text-zinc-900">
-              📚 Bài tập AI
+            <Link href="/dashboard" className="flex items-center gap-2 font-bold text-slate-900">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-base">
+                📚
+              </span>
+              Bài tập AI
             </Link>
-            <Link href="/dashboard/questions" className="text-sm text-zinc-600 hover:text-zinc-900">
+            <Link
+              href="/dashboard/questions"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700"
+            >
               Ngân hàng câu hỏi
             </Link>
-            <Link href="/dashboard/exams" className="text-sm text-zinc-600 hover:text-zinc-900">
+            <Link
+              href="/dashboard/exams"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700"
+            >
               Đề thi
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-zinc-600">{teacher?.name}</span>
+            <span className="flex items-center gap-2 text-sm text-slate-600">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+                {teacher?.name?.charAt(0).toUpperCase() || "?"}
+              </span>
+              {teacher?.name}
+            </span>
             <LogoutButton />
           </div>
         </div>

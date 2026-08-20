@@ -32,7 +32,7 @@ function parseTrueFalseAnswer(answer: string): string[] {
 export default function QuestionList({ questions }: { questions: Question[] }) {
   if (questions.length === 0) {
     return (
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-slate-500">
         Chưa có câu hỏi nào trong ngân hàng. Upload ảnh/PDF ở trên để AI sinh câu hỏi.
       </p>
     );
@@ -43,31 +43,31 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
       {questions.map((q) => {
         const options: string[] | null = q.options ? JSON.parse(q.options) : null;
         return (
-          <div key={q.id} className="rounded-lg border border-zinc-200 bg-white p-4">
+          <div key={q.id} className="rounded-lg border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-medium text-zinc-500 uppercase">
+              <span className="text-xs font-medium text-slate-500 uppercase">
                 {typeLabel[q.type] || q.type}
               </span>
-              <span className="text-xs text-zinc-400">·</span>
-              <span className="text-xs text-zinc-500">{q.subject}</span>
+              <span className="text-xs text-slate-400">·</span>
+              <span className="text-xs text-slate-500">{q.subject}</span>
               {q.topic && (
                 <>
-                  <span className="text-xs text-zinc-400">·</span>
-                  <span className="text-xs text-zinc-500">{q.topic}</span>
+                  <span className="text-xs text-slate-400">·</span>
+                  <span className="text-xs text-slate-500">{q.topic}</span>
                 </>
               )}
             </div>
-            <p className="text-sm text-zinc-900 mb-1.5">{q.content}</p>
+            <p className="text-sm text-slate-900 mb-1.5">{q.content}</p>
             {q.imageUrl?.startsWith("data:") && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={q.imageUrl}
                 alt="Hình minh họa"
-                className="max-w-xs rounded border border-zinc-200 mb-1.5"
+                className="max-w-xs rounded border border-slate-200 mb-1.5"
               />
             )}
             {q.type === "true_false" && options ? (
-              <ul className="text-sm text-zinc-600 mb-1.5 space-y-0.5">
+              <ul className="text-sm text-slate-600 mb-1.5 space-y-0.5">
                 {options.map((opt, i) => {
                   const answers = parseTrueFalseAnswer(q.answer);
                   const isTrue = answers[i] === "true";
@@ -84,7 +84,7 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
             ) : (
               <>
                 {options && (
-                  <ul className="text-sm text-zinc-600 mb-1.5 space-y-0.5">
+                  <ul className="text-sm text-slate-600 mb-1.5 space-y-0.5">
                     {options.map((opt, i) => (
                       <li key={i}>{opt}</li>
                     ))}

@@ -11,7 +11,7 @@ export default function AttachedMedia({
 
   if (url.startsWith("data:application/pdf")) {
     return (
-      <div className={`rounded border border-slate-200 overflow-hidden ${className}`}>
+      <div className={`rounded-xl border border-slate-200 overflow-hidden ${className}`}>
         <iframe src={url} className="w-full h-72" title="Hình minh họa (PDF)" />
       </div>
     );
@@ -19,6 +19,6 @@ export default function AttachedMedia({
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt="Hình minh họa" className={`rounded border border-slate-200 ${className}`} />
+    <img src={url} alt="Hình minh họa" className={`rounded-xl border border-slate-200 ${className}`} />
   );
 }

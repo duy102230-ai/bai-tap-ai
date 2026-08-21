@@ -31,7 +31,7 @@ export default function AnswerReview({ items }: { items: AnswerBreakdownItem[] }
         return (
           <div
             key={item.questionId}
-            className={`rounded-xl border p-4 text-left ${
+            className={`rounded-2xl border p-4 text-left ${
               !item.gradable
                 ? "border-slate-200 bg-white"
                 : isFullyCorrect

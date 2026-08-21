@@ -10,8 +10,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { subject, topic, sourceImage, sourceIsPdf, questions } = body as {
+  const { subject, grade, topic, sourceImage, sourceIsPdf, questions } = body as {
     subject: string;
+    grade?: string;
     topic?: string;
     sourceImage?: string | null;
     sourceIsPdf?: boolean;
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
         data: {
           teacherId,
           subject,
+          grade: grade || null,
           topic: topic || null,
           type: q.type,
           content: q.content,

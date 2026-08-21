@@ -7,6 +7,7 @@ import AttachedMedia from "@/components/attached-media";
 type Question = {
   id: string;
   subject: string;
+  grade: string | null;
   topic: string | null;
   type: string;
   content: string;
@@ -33,6 +34,8 @@ function parseTrueFalseAnswer(answer: string): string[] {
   return ["false", "false", "false", "false"];
 }
 
+const NO_GRADE = "Chưa phân lớp";
+
 export default function QuestionList({ questions }: { questions: Question[] }) {
   if (questions.length === 0) {
     return (
@@ -42,11 +45,57 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
     );
   }
 
+  const bySubject = new Map<string, Question[]>();
+  for (const q of questions) {
+    const list = bySubject.get(q.subject) || [];
+    list.push(q);
+    bySubject.set(q.subject, list);
+  }
+
   return (
-    <div className="space-y-3">
-      {questions.map((q) => (
-        <QuestionItem key={q.id} question={q} />
-      ))}
+    <div className="space-y-4">
+      {Array.from(bySubject.entries()).map(([subject, subjectQuestions]) => {
+        const byGrade = new Map<string, Question[]>();
+        for (const q of subjectQuestions) {
+          const key = q.grade?.trim() || NO_GRADE;
+          const list = byGrade.get(key) || [];
+          list.push(q);
+          byGrade.set(key, list);
+        }
+        const grades = Array.from(byGrade.keys()).sort((a, b) => {
+          if (a === NO_GRADE) return 1;
+          if (b === NO_GRADE) return -1;
+          return a.localeCompare(b, "vi", { numeric: true });
+        });
+
+        return (
+          <details key={subject} open className="rounded-xl border border-slate-200 bg-white">
+            <summary className="cursor-pointer px-4 py-3 font-semibold text-slate-900 flex items-center gap-2">
+              📘 {subject}
+              <span className="text-xs font-normal text-slate-400">
+                ({subjectQuestions.length} câu)
+              </span>
+            </summary>
+            <div className="border-t border-slate-100 px-4 py-3 space-y-3">
+              {grades.map((grade) => (
+                <details key={grade} open className="rounded-lg border border-slate-100">
+                  <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-700 flex items-center gap-2 bg-slate-50 rounded-lg">
+                    {grade === NO_GRADE ? grade : `Lớp ${grade}`}
+                    <span className="text-xs font-normal text-slate-400">
+                      ({byGrade.get(grade)!.length} câu)
+                    </span>
+                  </summary>
+                  <div className="px-3 py-3 space-y-3">
+                    {byGrade.get(grade)!.map((q) => (
+                      <QuestionItem key={q.id} question={q} />
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </details>
+        );
+      })}
     </div>
   );
 }
@@ -124,8 +173,12 @@ function QuestionItem({ question: q }: { question: Question }) {
           <span className="text-xs font-medium text-slate-500 uppercase">
             {typeLabel[q.type] || q.type}
           </span>
-          <span className="text-xs text-slate-400">·</span>
-          <span className="text-xs text-slate-500">{q.subject}</span>
+          {q.grade && (
+            <>
+              <span className="text-xs text-slate-400">·</span>
+              <span className="text-xs text-slate-500">Lớp {q.grade}</span>
+            </>
+          )}
           {q.topic && (
             <>
               <span className="text-xs text-slate-400">·</span>

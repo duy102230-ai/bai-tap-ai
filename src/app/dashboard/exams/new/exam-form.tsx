@@ -7,6 +7,7 @@ import AttachedMedia from "@/components/attached-media";
 type Question = {
   id: string;
   subject: string;
+  grade: string | null;
   topic: string | null;
   type: string;
   content: string;
@@ -28,6 +29,8 @@ export default function ExamForm({
   initialDescription = "",
   initialDurationMinutes = null,
   initialSelectedIds = [],
+  newlyAddedIds = [],
+  newlyAddedNonce = 0,
 }: {
   questions: Question[];
   examId?: string;
@@ -35,6 +38,8 @@ export default function ExamForm({
   initialDescription?: string;
   initialDurationMinutes?: number | null;
   initialSelectedIds?: string[];
+  newlyAddedIds?: string[];
+  newlyAddedNonce?: number;
 }) {
   const router = useRouter();
   const isEdit = !!examId;
@@ -45,21 +50,39 @@ export default function ExamForm({
   );
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSelectedIds));
   const [subjectFilter, setSubjectFilter] = useState("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [createdLink, setCreatedLink] = useState("");
+
+  const [seenNonce, setSeenNonce] = useState(newlyAddedNonce);
+  if (newlyAddedNonce !== seenNonce) {
+    setSeenNonce(newlyAddedNonce);
+    setSelected((prev) => {
+      const next = new Set(prev);
+      newlyAddedIds.forEach((id) => next.add(id));
+      return next;
+    });
+  }
 
   const subjects = useMemo(
     () => Array.from(new Set(questions.map((q) => q.subject))),
     [questions]
   );
 
+  const grades = useMemo(
+    () => Array.from(new Set(questions.map((q) => q.grade).filter((g): g is string => !!g))),
+    [questions]
+  );
+
   const filtered = useMemo(
     () =>
-      subjectFilter === "all"
-        ? questions
-        : questions.filter((q) => q.subject === subjectFilter),
-    [questions, subjectFilter]
+      questions.filter(
+        (q) =>
+          (subjectFilter === "all" || q.subject === subjectFilter) &&
+          (gradeFilter === "all" || q.grade === gradeFilter)
+      ),
+    [questions, subjectFilter, gradeFilter]
   );
 
   function toggle(id: string) {
@@ -181,18 +204,34 @@ export default function ExamForm({
         <h2 className="text-lg font-semibold text-slate-900">
           Chọn câu hỏi ({selected.size} đã chọn)
         </h2>
-        <select
-          value={subjectFilter}
-          onChange={(e) => setSubjectFilter(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          <option value="all">Tất cả môn</option>
-          {subjects.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-2">
+          <select
+            value={subjectFilter}
+            onChange={(e) => setSubjectFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+          >
+            <option value="all">Tất cả môn</option>
+            {subjects.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          {grades.length > 0 && (
+            <select
+              value={gradeFilter}
+              onChange={(e) => setGradeFilter(e.target.value)}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+            >
+              <option value="all">Tất cả lớp</option>
+              {grades.map((g) => (
+                <option key={g} value={g}>
+                  Lớp {g}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2 mb-6">
@@ -217,6 +256,7 @@ export default function ExamForm({
               <div>
                 <span className="text-xs font-medium text-slate-500 uppercase">
                   {typeLabel[q.type] || q.type} · {q.subject}
+                  {q.grade ? ` · Lớp ${q.grade}` : ""}
                 </span>
                 <p className="text-sm text-slate-900">{q.content}</p>
                 <AttachedMedia url={q.imageUrl} className="max-w-[200px] mt-1" />

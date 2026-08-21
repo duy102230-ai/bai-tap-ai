@@ -14,6 +14,17 @@ type GeneratedQuestion = {
   visualPage?: number;
 };
 
+export type SavedQuestion = {
+  id: string;
+  subject: string;
+  grade: string | null;
+  topic: string | null;
+  type: string;
+  content: string;
+  options: string | null;
+  imageUrl: string | null;
+};
+
 const typeLabel: Record<string, string> = {
   multiple_choice: "Trắc nghiệm",
   essay: "Tự luận",
@@ -31,10 +42,15 @@ function parseTrueFalseAnswer(answer: string): string[] {
   return ["false", "false", "false", "false"];
 }
 
-export default function QuestionGenerator() {
+export default function QuestionGenerator({
+  onSaved,
+}: {
+  onSaved?: (created: SavedQuestion[]) => void;
+} = {}) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [subject, setSubject] = useState("");
+  const [grade, setGrade] = useState("");
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -117,6 +133,7 @@ export default function QuestionGenerator() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subject,
+          grade,
           topic,
           sourceFile: file?.name,
           sourceImage,
@@ -133,6 +150,7 @@ export default function QuestionGenerator() {
       setFile(null);
       setSourceImage(null);
       setSourceIsPdf(false);
+      onSaved?.(data.questions);
       router.refresh();
     } finally {
       setSaving(false);
@@ -153,6 +171,15 @@ export default function QuestionGenerator() {
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Toán, Văn, Anh..."
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm w-40"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-slate-700 mb-1">Lớp (tùy chọn)</label>
+          <input
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+            placeholder="10, 11, 12..."
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm w-28"
           />
         </div>
         <div>

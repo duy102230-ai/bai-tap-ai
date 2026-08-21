@@ -24,6 +24,7 @@ model Question {
   id          String   @id @default(cuid())
   teacherId   String
   subject     String // Môn học, vd: Toán, Văn
+  grade       String? // Lớp, vd: "10", "11", "12"
   topic       String? // Chủ đề/chương
   type        String // "multiple_choice" | "essay" | "fill_blank"
   content     String // Nội dung câu hỏi

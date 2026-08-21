@@ -10,10 +10,11 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { subject, topic, sourceImage, questions } = body as {
+  const { subject, topic, sourceImage, sourceIsPdf, questions } = body as {
     subject: string;
     topic?: string;
     sourceImage?: string | null;
+    sourceIsPdf?: boolean;
     questions: GeneratedQuestion[];
   };
 
@@ -22,8 +23,12 @@ export async function POST(req: NextRequest) {
   }
 
   const created = await prisma.$transaction(
-    questions.map((q) =>
-      prisma.question.create({
+    questions.map((q) => {
+      let imageUrl: string | null = null;
+      if (q.hasVisual && sourceImage) {
+        imageUrl = sourceIsPdf && q.visualPage ? `${sourceImage}#page=${q.visualPage}` : sourceImage;
+      }
+      return prisma.question.create({
         data: {
           teacherId,
           subject,
@@ -33,10 +38,10 @@ export async function POST(req: NextRequest) {
           options: q.options ? JSON.stringify(q.options) : null,
           answer: q.answer,
           explanation: q.explanation || null,
-          imageUrl: q.hasVisual && sourceImage ? sourceImage : null,
+          imageUrl,
         },
-      })
-    )
+      });
+    })
   );
 
   return NextResponse.json({ questions: created });

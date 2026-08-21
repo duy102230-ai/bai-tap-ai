@@ -8,6 +8,7 @@ export type GeneratedQuestion = {
   answer: string;
   explanation?: string;
   hasVisual?: boolean;
+  visualPage?: number;
 };
 
 const SYSTEM_PROMPT = `Bạn là trợ lý giáo dục. Nhiệm vụ: đọc nội dung đề bài/bài học trong ảnh hoặc PDF được cung cấp,
@@ -19,6 +20,7 @@ Yêu cầu chung:
 - Nếu không xác định được đáp án đúng chắc chắn, hãy suy luận dựa trên kiến thức chuẩn của môn học.
 - Luôn có "explanation" giải thích ngắn gọn vì sao đáp án đó đúng.
 - field "hasVisual": đặt là true nếu câu hỏi PHỤ THUỘC vào một hình ảnh/đồ thị/bảng biến thiên/hình vẽ trong đề gốc mà học sinh BẮT BUỘC phải nhìn thấy hình đó mới trả lời được (ví dụ đề ghi "như hình vẽ", "theo đồ thị sau", "bảng biến thiên sau đây"). Đặt false nếu câu hỏi chỉ cần đọc chữ là đủ, không cần xem hình.
+- field "visualPage": CHỈ áp dụng khi nguồn là file PDF nhiều trang và "hasVisual" là true — ghi số trang (bắt đầu từ 1) trong file PDF gốc nơi hình ảnh/đồ thị đó xuất hiện, để hệ thống có thể mở đúng trang cho học sinh xem. Nếu nguồn là ảnh đơn hoặc không có hasVisual, bỏ qua field này.
 
 Quy tắc theo từng loại:
 - multiple_choice: field "options" là mảng 4 chuỗi dạng "A. nội dung", "B. nội dung", ...; field "answer" chỉ chứa chữ cái đúng (vd "A").
@@ -46,13 +48,17 @@ Trả về DUY NHẤT một JSON array hợp lệ, không kèm markdown, không 
     "options": ["a) ...", "b) ...", "c) ...", "d) ..."],
     "answer": "[\\"true\\",\\"false\\",\\"true\\",\\"false\\"]",
     "explanation": "...",
-    "hasVisual": true
+    "hasVisual": true,
+    "visualPage": 2
   }
 ]`;
+
+const MAX_ATTACH_BYTES = 4 * 1024 * 1024; // 4MB — giới hạn để không làm đầy database free tier
 
 export type GenerateResult = {
   questions: GeneratedQuestion[];
   sourceImage: string | null;
+  sourceIsPdf: boolean;
 };
 
 export async function generateQuestionsFromFile(
@@ -69,6 +75,7 @@ export async function generateQuestionsFromFile(
   let inputBuffer = fileBuffer;
   let inputMimeType = mimeType;
   let sourceImage: string | null = null;
+  const sourceIsPdf = mimeType === "application/pdf";
 
   if (mimeType.startsWith("image/")) {
     const resized = await sharp(fileBuffer)
@@ -78,6 +85,8 @@ export async function generateQuestionsFromFile(
     inputBuffer = resized;
     inputMimeType = "image/jpeg";
     sourceImage = `data:image/jpeg;base64,${resized.toString("base64")}`;
+  } else if (sourceIsPdf && fileBuffer.length <= MAX_ATTACH_BYTES) {
+    sourceImage = `data:application/pdf;base64,${fileBuffer.toString("base64")}`;
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -111,5 +120,5 @@ export async function generateQuestionsFromFile(
     throw new Error("AI trả về dữ liệu không đúng định dạng danh sách câu hỏi.");
   }
 
-  return { questions: parsed, sourceImage };
+  return { questions: parsed, sourceImage, sourceIsPdf };
 }

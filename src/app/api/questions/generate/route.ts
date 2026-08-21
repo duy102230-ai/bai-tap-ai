@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    const { questions, sourceImage } = await generateQuestionsFromFile(buffer, file.type);
-    return NextResponse.json({ questions, sourceImage });
+    const { questions, sourceImage, sourceIsPdf } = await generateQuestionsFromFile(buffer, file.type);
+    return NextResponse.json({ questions, sourceImage, sourceIsPdf });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Lỗi không xác định khi gọi AI.";
     return NextResponse.json({ error: message }, { status: 500 });

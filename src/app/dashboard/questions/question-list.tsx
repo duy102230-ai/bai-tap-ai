@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import AttachedMedia from "@/components/attached-media";
 
 type Question = {
   id: string;
@@ -151,14 +152,7 @@ function QuestionItem({ question: q }: { question: Question }) {
         )}
       </div>
 
-      {q.imageUrl?.startsWith("data:") && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={q.imageUrl}
-          alt="Hình minh họa"
-          className="max-w-xs rounded border border-slate-200 mb-1.5"
-        />
-      )}
+      <AttachedMedia url={q.imageUrl} className="max-w-xs mb-1.5" />
 
       {!editing ? (
         <>

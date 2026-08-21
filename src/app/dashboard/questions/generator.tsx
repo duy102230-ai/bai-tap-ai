@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import AttachedMedia from "@/components/attached-media";
 
 type GeneratedQuestion = {
   type: "multiple_choice" | "essay" | "fill_blank" | "true_false";
@@ -10,6 +11,7 @@ type GeneratedQuestion = {
   answer: string;
   explanation?: string;
   hasVisual?: boolean;
+  visualPage?: number;
 };
 
 const typeLabel: Record<string, string> = {
@@ -39,6 +41,7 @@ export default function QuestionGenerator() {
   const [error, setError] = useState("");
   const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
   const [sourceImage, setSourceImage] = useState<string | null>(null);
+  const [sourceIsPdf, setSourceIsPdf] = useState(false);
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +50,7 @@ export default function QuestionGenerator() {
     setLoading(true);
     setQuestions([]);
     setSourceImage(null);
+    setSourceIsPdf(false);
 
     try {
       const formData = new FormData();
@@ -62,6 +66,7 @@ export default function QuestionGenerator() {
       }
       setQuestions(data.questions);
       setSourceImage(data.sourceImage || null);
+      setSourceIsPdf(!!data.sourceIsPdf);
     } finally {
       setLoading(false);
     }
@@ -115,6 +120,7 @@ export default function QuestionGenerator() {
           topic,
           sourceFile: file?.name,
           sourceImage,
+          sourceIsPdf,
           questions,
         }),
       });
@@ -126,6 +132,7 @@ export default function QuestionGenerator() {
       setQuestions([]);
       setFile(null);
       setSourceImage(null);
+      setSourceIsPdf(false);
       router.refresh();
     } finally {
       setSaving(false);
@@ -181,9 +188,11 @@ export default function QuestionGenerator() {
         <div>
           {sourceImage && (
             <div className="mb-4">
-              <p className="text-xs text-slate-500 mb-1">Ảnh đề gốc (tick &quot;Kèm hình&quot; ở câu nào cần xem hình mới trả lời được):</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sourceImage} alt="Đề gốc" className="max-w-xs rounded border border-slate-200" />
+              <p className="text-xs text-slate-500 mb-1">
+                File đề gốc (tick &quot;Kèm hình&quot; ở câu nào cần xem hình mới trả lời được
+                {sourceIsPdf ? " — nhớ điền đúng số trang" : ""}):
+              </p>
+              <AttachedMedia url={sourceImage} className="max-w-xs" />
             </div>
           )}
           <div className="flex items-center justify-between mb-3">
@@ -215,6 +224,18 @@ export default function QuestionGenerator() {
                           onChange={(e) => updateQuestion(i, { hasVisual: e.target.checked })}
                         />
                         Kèm hình
+                      </label>
+                    )}
+                    {sourceImage && sourceIsPdf && q.hasVisual && (
+                      <label className="flex items-center gap-1 text-xs text-slate-600">
+                        Trang
+                        <input
+                          type="number"
+                          min={1}
+                          value={q.visualPage ?? 1}
+                          onChange={(e) => updateQuestion(i, { visualPage: Number(e.target.value) })}
+                          className="w-12 rounded border border-slate-300 px-1 py-0.5"
+                        />
                       </label>
                     )}
                     <button

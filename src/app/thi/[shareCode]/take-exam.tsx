@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import AttachedMedia from "@/components/attached-media";
 
 type Question = {
   id: string;
@@ -202,14 +203,7 @@ export default function TakeExam({
               </span>
               <span>{q.content}</span>
             </p>
-            {q.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={q.imageUrl}
-                alt="Hình minh họa"
-                className="max-w-full rounded border border-slate-200 mb-3"
-              />
-            )}
+            <AttachedMedia url={q.imageUrl} className="max-w-full mb-3" />
             {q.type === "true_false" && q.options ? (
               <div className="space-y-3">
                 {q.options.map((opt, oi) => {

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import AttachedMedia from "@/components/attached-media";
 
 type Question = {
   id: string;
@@ -218,14 +219,7 @@ export default function ExamForm({
                   {typeLabel[q.type] || q.type} · {q.subject}
                 </span>
                 <p className="text-sm text-slate-900">{q.content}</p>
-                {q.imageUrl?.startsWith("data:") && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={q.imageUrl}
-                    alt="Hình minh họa"
-                    className="max-w-[200px] rounded border border-slate-200 mt-1"
-                  />
-                )}
+                <AttachedMedia url={q.imageUrl} className="max-w-[200px] mt-1" />
                 {options && (
                   <ul className="text-xs text-slate-600 mt-1">
                     {options.map((opt, i) => (

@@ -92,17 +92,33 @@ export async function generateQuestionsFromFile(
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
-  const result = await model.generateContent([
-    SYSTEM_PROMPT,
-    {
-      inlineData: {
-        data: inputBuffer.toString("base64"),
-        mimeType: inputMimeType,
-      },
-    },
-  ]);
+  const paraphraseNote = `\n\nLƯU Ý THÊM: Đừng sao chép nguyên văn từng chữ từ tài liệu gốc — hãy diễn đạt lại nội dung câu hỏi và đáp án bằng lời văn của riêng bạn (giữ nguyên ý nghĩa và đáp án đúng) để tránh trùng khớp với tài liệu có bản quyền.`;
 
-  const text = result.response.text().trim();
+  let text: string;
+  try {
+    const result = await model.generateContent([
+      SYSTEM_PROMPT,
+      { inlineData: { data: inputBuffer.toString("base64"), mimeType: inputMimeType } },
+    ]);
+    text = result.response.text().trim();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (!message.includes("RECITATION")) throw err;
+
+    // Nội dung trùng khớp tài liệu có bản quyền — thử lại 1 lần, yêu cầu AI diễn đạt lại thay vì sao chép nguyên văn
+    try {
+      const retryResult = await model.generateContent([
+        SYSTEM_PROMPT + paraphraseNote,
+        { inlineData: { data: inputBuffer.toString("base64"), mimeType: inputMimeType } },
+      ]);
+      text = retryResult.response.text().trim();
+    } catch {
+      throw new Error(
+        "AI từ chối xử lý vì nội dung ảnh/PDF trùng khớp với tài liệu có bản quyền đã xuất bản (đề thi/sách phổ biến trên mạng). Anh thử lại, hoặc dùng ảnh chụp khác/phần đề khác."
+      );
+    }
+  }
+
   const jsonText = text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")

@@ -25,7 +25,7 @@ export default async function EditExamPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900 mb-6">Sửa đề thi</h1>
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Sửa đề thi</h1>
       <ExamForm
         questions={questions}
         examId={exam.id}

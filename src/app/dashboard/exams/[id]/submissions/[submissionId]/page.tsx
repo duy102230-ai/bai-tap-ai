@@ -40,7 +40,7 @@ export default async function SubmissionDetailPage({
 
       <div className="flex items-center justify-between mt-3 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{submission.studentName}</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{submission.studentName}</h1>
           <p className="text-sm text-slate-500">
             Nộp lúc {submission.submittedAt.toLocaleString("vi-VN")}
           </p>

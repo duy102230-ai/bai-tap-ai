@@ -34,7 +34,7 @@ export default function NewExamClient({ initialQuestions }: { initialQuestions: 
         <button
           type="button"
           onClick={() => setShowUpload(true)}
-          className="mb-6 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+          className="min-h-[44px] mb-6 rounded-full border border-blue-300 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-all"
         >
           + Upload ảnh/PDF để sinh câu hỏi mới cho đề này
         </button>

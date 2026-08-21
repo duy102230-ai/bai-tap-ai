@@ -158,9 +158,9 @@ export default function QuestionGenerator({
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 mb-8">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">
-        Sinh câu hỏi từ ảnh/PDF bằng AI
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 mb-8 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-900 mb-4">
+        ✨ Sinh câu hỏi từ ảnh/PDF bằng AI
       </h2>
 
       <form onSubmit={handleGenerate} className="flex flex-wrap gap-3 items-end mb-4">
@@ -203,7 +203,7 @@ export default function QuestionGenerator({
         <button
           type="submit"
           disabled={!file || loading}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="min-h-[44px] rounded-full bg-blue-600 px-5 py-2 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all"
         >
           {loading ? "AI đang xử lý..." : "Sinh câu hỏi"}
         </button>
@@ -229,7 +229,7 @@ export default function QuestionGenerator({
             <button
               onClick={handleSaveAll}
               disabled={saving}
-              className="rounded-lg bg-green-600 px-4 py-2 text-white text-sm font-medium hover:bg-green-500 disabled:opacity-50"
+              className="min-h-[44px] rounded-full bg-green-600 px-5 py-2 text-white text-sm font-semibold hover:bg-green-500 disabled:opacity-50 transition-all"
             >
               {saving ? "Đang lưu..." : `Lưu tất cả (${questions.length})`}
             </button>
@@ -237,7 +237,7 @@ export default function QuestionGenerator({
 
           <div className="space-y-4">
             {questions.map((q, i) => (
-              <div key={i} className="rounded-lg border border-slate-200 p-4">
+              <div key={i} className="rounded-xl border border-slate-200 p-4">
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-xs font-medium text-slate-500 uppercase">
                     Câu {i + 1} · {typeLabel[q.type] || q.type}

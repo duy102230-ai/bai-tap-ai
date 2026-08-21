@@ -145,18 +145,18 @@ export default function ExamForm({
 
   if (createdLink) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-6">
-        <p className="text-green-800 font-medium mb-2">Tạo đề thành công!</p>
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-6 shadow-sm">
+        <p className="text-green-800 font-semibold mb-2">🎉 Tạo đề thành công!</p>
         <p className="text-sm text-slate-700 mb-3">Gửi link này cho học sinh làm bài:</p>
         <div className="flex gap-2">
           <input
             readOnly
             value={createdLink}
-            className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm bg-white"
+            className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white"
           />
           <button
             onClick={() => navigator.clipboard.writeText(createdLink)}
-            className="rounded bg-blue-600 px-4 py-2 text-white text-sm"
+            className="min-h-[44px] rounded-full bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700"
           >
             Copy
           </button>
@@ -167,7 +167,7 @@ export default function ExamForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="rounded-xl border border-slate-200 bg-white p-6 mb-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 mb-6 shadow-sm">
         <div className="mb-4">
           <label className="block text-sm text-slate-700 mb-1">Tiêu đề đề thi</label>
           <input
@@ -243,7 +243,7 @@ export default function ExamForm({
           return (
             <label
               key={q.id}
-              className={`flex gap-3 rounded-lg border p-3 cursor-pointer ${
+              className={`flex gap-3 rounded-xl border p-3 cursor-pointer ${
                 selected.has(q.id) ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"
               }`}
             >
@@ -278,7 +278,7 @@ export default function ExamForm({
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg bg-blue-600 px-5 py-3 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+        className="min-h-[44px] rounded-full bg-blue-600 px-6 py-3 text-white text-sm font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:opacity-50 transition-all"
       >
         {saving ? "Đang lưu..." : isEdit ? "Lưu thay đổi" : "Tạo đề thi"}
       </button>

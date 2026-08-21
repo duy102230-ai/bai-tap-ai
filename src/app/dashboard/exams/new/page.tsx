@@ -11,7 +11,7 @@ export default async function NewExamPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900 mb-6">Tạo đề thi mới</h1>
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Tạo đề thi mới</h1>
       <NewExamClient initialQuestions={questions} />
     </div>
   );

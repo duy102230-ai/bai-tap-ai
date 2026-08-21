@@ -15,10 +15,10 @@ export default async function ExamsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Đề thi</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Đề thi</h1>
         <Link
           href="/dashboard/exams/new"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-medium hover:bg-blue-700"
+          className="min-h-[44px] inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-white text-sm font-semibold hover:bg-blue-700 transition-all"
         >
           + Tạo đề mới
         </Link>
@@ -30,7 +30,7 @@ export default async function ExamsPage() {
 
       <div className="space-y-3">
         {exams.map((exam) => (
-          <div key={exam.id} className="rounded-lg border border-slate-200 bg-white p-4">
+          <div key={exam.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-slate-900">{exam.title}</p>

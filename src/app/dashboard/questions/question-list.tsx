@@ -69,7 +69,7 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
         });
 
         return (
-          <details key={subject} open className="rounded-xl border border-slate-200 bg-white">
+          <details key={subject} open className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <summary className="cursor-pointer px-4 py-3 font-semibold text-slate-900 flex items-center gap-2">
               📘 {subject}
               <span className="text-xs font-normal text-slate-400">
@@ -78,8 +78,8 @@ export default function QuestionList({ questions }: { questions: Question[] }) {
             </summary>
             <div className="border-t border-slate-100 px-4 py-3 space-y-3">
               {grades.map((grade) => (
-                <details key={grade} open className="rounded-lg border border-slate-100">
-                  <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-700 flex items-center gap-2 bg-slate-50 rounded-lg">
+                <details key={grade} open className="rounded-xl border border-slate-100">
+                  <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-700 flex items-center gap-2 bg-slate-50 rounded-xl">
                     {grade === NO_GRADE ? grade : `Lớp ${grade}`}
                     <span className="text-xs font-normal text-slate-400">
                       ({byGrade.get(grade)!.length} câu)
@@ -167,7 +167,7 @@ function QuestionItem({ question: q }: { question: Question }) {
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-slate-500 uppercase">
@@ -301,7 +301,7 @@ function QuestionItem({ question: q }: { question: Question }) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded bg-blue-600 px-3 py-1.5 text-white text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-full bg-blue-600 px-4 py-1.5 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50"
             >
               {saving ? "Đang lưu..." : "Lưu"}
             </button>
@@ -313,7 +313,7 @@ function QuestionItem({ question: q }: { question: Question }) {
                 setAnswer(q.answer);
                 setError("");
               }}
-              className="rounded border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-50"
+              className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-semibold hover:bg-slate-50"
             >
               Hủy
             </button>

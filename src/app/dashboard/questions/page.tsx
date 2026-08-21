@@ -12,11 +12,11 @@ export default async function QuestionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900 mb-6">Ngân hàng câu hỏi</h1>
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Ngân hàng câu hỏi</h1>
 
       <QuestionGenerator />
 
-      <h2 className="text-lg font-semibold text-slate-900 mb-3">
+      <h2 className="text-lg font-bold text-slate-900 mb-3">
         Tất cả câu hỏi ({questions.length})
       </h2>
       <QuestionList

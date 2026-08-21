@@ -81,28 +81,28 @@ export default async function ExamResultsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900 mb-1">{exam.title}</h1>
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">{exam.title}</h1>
       <p className="text-sm text-slate-500 mb-6">
         {totalSubmissions} học sinh đã nộp bài
       </p>
 
       {totalSubmissions > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs text-slate-500">Điểm trung bình</p>
             <p className="text-2xl font-bold text-blue-600 mt-1">
               {avgScore.toFixed(1)}/{avgTotal.toFixed(0)}
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs text-slate-500">Cao nhất</p>
             <p className="text-2xl font-bold text-green-600 mt-1">{highest}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs text-slate-500">Thấp nhất</p>
             <p className="text-2xl font-bold text-red-600 mt-1">{lowest}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs text-slate-500">Số bài nộp</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">{totalSubmissions}</p>
           </div>
@@ -149,7 +149,7 @@ export default async function ExamResultsPage({
           <Link
             key={s.id}
             href={`/dashboard/exams/${id}/submissions/${s.id}`}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
+            className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
           >
             <div>
               <p className="font-medium text-slate-900">{s.studentName}</p>

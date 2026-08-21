@@ -106,7 +106,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-white font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:opacity-50 transition-all"
+            className="w-full min-h-[44px] rounded-full bg-blue-600 py-2.5 text-white font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:opacity-50 transition-all"
           >
             {loading ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Đăng ký"}
           </button>

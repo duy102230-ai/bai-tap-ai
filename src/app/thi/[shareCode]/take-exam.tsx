@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import AttachedMedia from "@/components/attached-media";
+import AnswerReview, { type AnswerBreakdownItem } from "@/components/answer-review";
 
 type Question = {
   id: string;
@@ -28,7 +29,11 @@ export default function TakeExam({
   const [started, setStarted] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ score: number; totalPoints: number } | null>(null);
+  const [result, setResult] = useState<{
+    score: number;
+    totalPoints: number;
+    breakdown: AnswerBreakdownItem[];
+  } | null>(null);
   const [error, setError] = useState("");
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const answersRef = useRef(answers);
@@ -92,7 +97,7 @@ export default function TakeExam({
         submittingRef.current = false;
         return;
       }
-      setResult({ score: data.score, totalPoints: data.totalPoints });
+      setResult({ score: data.score, totalPoints: data.totalPoints, breakdown: data.breakdown || [] });
     } finally {
       setSubmitting(false);
     }
@@ -128,17 +133,26 @@ export default function TakeExam({
   if (result) {
     const percent = result.totalPoints > 0 ? result.score / result.totalPoints : 0;
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="text-5xl mb-3">{percent >= 0.8 ? "🎉" : percent >= 0.5 ? "👍" : "💪"}</div>
-        <h1 className="text-xl font-bold text-slate-900 mb-2">Đã nộp bài!</h1>
-        <p className="text-slate-600 mb-6">Cảm ơn {studentName} đã hoàn thành bài thi.</p>
-        <div className="inline-flex flex-col items-center justify-center h-32 w-32 rounded-full bg-blue-50 border-4 border-blue-100 mb-2">
-          <span className="text-3xl font-extrabold text-blue-600">{result.score}</span>
-          <span className="text-xs text-slate-500">/ {result.totalPoints} điểm</span>
+      <div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm mb-6">
+          <div className="text-5xl mb-3">{percent >= 0.8 ? "🎉" : percent >= 0.5 ? "👍" : "💪"}</div>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">Đã nộp bài!</h1>
+          <p className="text-slate-600 mb-6">Cảm ơn {studentName} đã hoàn thành bài thi.</p>
+          <div className="inline-flex flex-col items-center justify-center h-32 w-32 rounded-full bg-blue-50 border-4 border-blue-100 mb-2">
+            <span className="text-3xl font-extrabold text-blue-600">{result.score}</span>
+            <span className="text-xs text-slate-500">/ {result.totalPoints} điểm</span>
+          </div>
+          <p className="text-xs text-slate-400 mt-4">
+            (Chỉ tính điểm các câu trắc nghiệm/đúng-sai/điền khuyết có thể chấm tự động)
+          </p>
         </div>
-        <p className="text-xs text-slate-400 mt-4">
-          (Chỉ tính điểm các câu trắc nghiệm/đúng-sai/điền khuyết có thể chấm tự động)
-        </p>
+
+        {result.breakdown.length > 0 && (
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">Xem lại bài làm</h2>
+            <AnswerReview items={result.breakdown} />
+          </div>
+        )}
       </div>
     );
   }

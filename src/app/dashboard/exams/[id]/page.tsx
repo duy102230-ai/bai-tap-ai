@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionTeacherId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { buildAnswerBreakdown } from "@/lib/grade";
 
 const typeLabel: Record<string, string> = {
   multiple_choice: "Trắc nghiệm",
@@ -32,6 +34,7 @@ export default async function ExamResultsPage({
 
   const submissions = exam.submissions;
   const totalSubmissions = submissions.length;
+  const questions = exam.questions.map((eq) => eq.question);
 
   const avgScore =
     totalSubmissions > 0
@@ -44,56 +47,36 @@ export default async function ExamResultsPage({
   const highest = totalSubmissions > 0 ? Math.max(...submissions.map((s) => s.score ?? 0)) : 0;
   const lowest = totalSubmissions > 0 ? Math.min(...submissions.map((s) => s.score ?? 0)) : 0;
 
-  const questionStats = exam.questions
-    .map((eq) => {
-      const q = eq.question;
-      if (q.type !== "multiple_choice" && q.type !== "fill_blank" && q.type !== "true_false") {
-        return null;
-      }
+  // Gộp breakdown của mọi bài nộp để tính tỷ lệ đúng theo từng câu
+  const accuracyByQuestion = new Map<string, { sum: number; count: number }>();
+  for (const s of submissions) {
+    let answers: Record<string, string>;
+    try {
+      answers = JSON.parse(s.answers);
+    } catch {
+      continue;
+    }
+    const breakdown = buildAnswerBreakdown(questions, answers);
+    for (const b of breakdown) {
+      if (!b.gradable) continue;
+      const prev = accuracyByQuestion.get(b.questionId) || { sum: 0, count: 0 };
+      prev.sum += b.scoreFraction;
+      prev.count += 1;
+      accuracyByQuestion.set(b.questionId, prev);
+    }
+  }
 
-      let accuracySum = 0;
-      let counted = 0;
-
-      for (const s of submissions) {
-        let studentAnswers: Record<string, string>;
-        try {
-          studentAnswers = JSON.parse(s.answers);
-        } catch {
-          continue;
-        }
-        counted += 1;
-
-        if (q.type === "true_false") {
-          try {
-            const correctArr: string[] = JSON.parse(q.answer);
-            const studentArr: string[] = JSON.parse(studentAnswers[q.id] || "[]");
-            const total = correctArr.length || 1;
-            let correctCount = 0;
-            for (let i = 0; i < total; i++) {
-              if ((studentArr[i] || "") === (correctArr[i] || "")) correctCount += 1;
-            }
-            accuracySum += correctCount / total;
-          } catch {
-            // bỏ qua nếu dữ liệu lỗi
-          }
-        } else {
-          const studentAnswer = (studentAnswers[q.id] || "").toString().trim().toLowerCase();
-          const correctAnswer = q.answer.trim().toLowerCase();
-          if (studentAnswer === correctAnswer) accuracySum += 1;
-        }
-      }
-
-      const accuracy = counted > 0 ? accuracySum / counted : 0;
-
+  const questionStats = questions
+    .filter((q) => accuracyByQuestion.has(q.id))
+    .map((q) => {
+      const stat = accuracyByQuestion.get(q.id)!;
       return {
         id: q.id,
         content: q.content,
         type: q.type,
-        accuracy,
-        counted,
+        accuracy: stat.count > 0 ? stat.sum / stat.count : 0,
       };
     })
-    .filter((s): s is NonNullable<typeof s> => s !== null)
     .sort((a, b) => a.accuracy - b.accuracy);
 
   return (
@@ -163,20 +146,21 @@ export default async function ExamResultsPage({
 
       <div className="space-y-2">
         {submissions.map((s) => (
-          <div
+          <Link
             key={s.id}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4"
+            href={`/dashboard/exams/${id}/submissions/${s.id}`}
+            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
           >
             <div>
               <p className="font-medium text-slate-900">{s.studentName}</p>
               <p className="text-xs text-slate-500">
-                Nộp lúc {s.submittedAt.toLocaleString("vi-VN")}
+                Nộp lúc {s.submittedAt.toLocaleString("vi-VN")} · Xem chi tiết →
               </p>
             </div>
             <p className="text-lg font-semibold text-slate-900">
               {s.score}/{s.totalPoints}
             </p>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

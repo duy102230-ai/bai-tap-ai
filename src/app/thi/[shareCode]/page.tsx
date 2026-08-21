@@ -36,6 +36,7 @@ export default async function ExamTakingPage({
           shareCode={shareCode}
           title={exam.title}
           description={exam.description}
+          durationMinutes={exam.durationMinutes}
           questions={questions}
         />
       </div>

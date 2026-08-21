@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
   }
 
-  const { title, description, questionIds } = await req.json();
+  const { title, description, durationMinutes, questionIds } = await req.json();
 
   if (!title || !Array.isArray(questionIds) || questionIds.length === 0) {
     return NextResponse.json({ error: "Thiếu tiêu đề hoặc danh sách câu hỏi." }, { status: 400 });
@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       teacherId,
       title,
       description: description || null,
+      durationMinutes: durationMinutes || null,
       shareCode,
       isPublished: true,
       questions: {

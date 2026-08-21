@@ -34,6 +34,7 @@ export async function GET(
     id: exam.id,
     title: exam.title,
     description: exam.description,
+    durationMinutes: exam.durationMinutes,
     questions,
   });
 }

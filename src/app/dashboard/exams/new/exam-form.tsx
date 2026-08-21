@@ -20,11 +20,29 @@ const typeLabel: Record<string, string> = {
   true_false: "Đúng/Sai",
 };
 
-export default function ExamForm({ questions }: { questions: Question[] }) {
+export default function ExamForm({
+  questions,
+  examId,
+  initialTitle = "",
+  initialDescription = "",
+  initialDurationMinutes = null,
+  initialSelectedIds = [],
+}: {
+  questions: Question[];
+  examId?: string;
+  initialTitle?: string;
+  initialDescription?: string;
+  initialDurationMinutes?: number | null;
+  initialSelectedIds?: string[];
+}) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const isEdit = !!examId;
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [durationMinutes, setDurationMinutes] = useState(
+    initialDurationMinutes ? String(initialDurationMinutes) : ""
+  );
+  const [selected, setSelected] = useState<Set<string>>(new Set(initialSelectedIds));
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -61,14 +79,33 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
     }
     setSaving(true);
     try {
+      const payload = {
+        title,
+        description,
+        durationMinutes: durationMinutes ? Number(durationMinutes) : null,
+        questionIds: Array.from(selected),
+      };
+
+      if (isEdit) {
+        const res = await fetch(`/api/exams/id/${examId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Lỗi khi lưu đề.");
+          return;
+        }
+        router.push("/dashboard/exams");
+        router.refresh();
+        return;
+      }
+
       const res = await fetch("/api/exams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          questionIds: Array.from(selected),
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -116,12 +153,25 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
-        <div>
+        <div className="mb-4">
           <label className="block text-sm text-slate-700 mb-1">Mô tả (tùy chọn)</label>
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-slate-700 mb-1">
+            Giới hạn thời gian làm bài (phút, để trống nếu không giới hạn)
+          </label>
+          <input
+            type="number"
+            min={1}
+            value={durationMinutes}
+            onChange={(e) => setDurationMinutes(e.target.value)}
+            placeholder="vd: 15"
+            className="w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
       </div>
@@ -154,7 +204,7 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
             <label
               key={q.id}
               className={`flex gap-3 rounded-lg border p-3 cursor-pointer ${
-                selected.has(q.id) ? "border-slate-900 bg-slate-50" : "border-slate-200 bg-white"
+                selected.has(q.id) ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"
               }`}
             >
               <input
@@ -196,7 +246,7 @@ export default function ExamForm({ questions }: { questions: Question[] }) {
         disabled={saving}
         className="rounded-lg bg-blue-600 px-5 py-3 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
       >
-        {saving ? "Đang tạo..." : "Tạo đề thi"}
+        {saving ? "Đang lưu..." : isEdit ? "Lưu thay đổi" : "Tạo đề thi"}
       </button>
     </form>
   );

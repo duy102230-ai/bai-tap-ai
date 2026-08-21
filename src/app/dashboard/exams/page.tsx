@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSessionTeacherId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CopyLinkButton from "./copy-link-button";
+import DeleteExamButton from "./delete-exam-button";
 
 export default async function ExamsPage() {
   const teacherId = await getSessionTeacherId();
@@ -35,16 +36,24 @@ export default async function ExamsPage() {
                 <p className="font-medium text-slate-900">{exam.title}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
                   {exam._count.questions} câu hỏi · {exam._count.submissions} bài đã nộp
+                  {exam.durationMinutes ? ` · Giới hạn ${exam.durationMinutes} phút` : ""}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   href={`/dashboard/exams/${exam.id}`}
                   className="text-sm text-slate-600 hover:underline"
                 >
                   Xem kết quả
                 </Link>
+                <Link
+                  href={`/dashboard/exams/${exam.id}/edit`}
+                  className="text-sm text-slate-600 hover:underline"
+                >
+                  Sửa
+                </Link>
                 <CopyLinkButton shareCode={exam.shareCode} />
+                <DeleteExamButton examId={exam.id} title={exam.title} />
               </div>
             </div>
           </div>

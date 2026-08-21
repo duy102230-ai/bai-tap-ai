@@ -39,14 +39,15 @@ model Question {
 
 // Đề thi/bài tập được tạo ra từ ngân hàng câu hỏi
 model Exam {
-  id          String   @id @default(cuid())
-  teacherId   String
-  title       String
-  description String?
-  sourceFile  String? // Tên/đường dẫn file ảnh/PDF gốc dùng để tạo đề
-  shareCode   String   @unique // Mã code ngắn để học sinh vào làm bài qua link
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  teacherId       String
+  title           String
+  description     String?
+  sourceFile      String? // Tên/đường dẫn file ảnh/PDF gốc dùng để tạo đề
+  shareCode       String   @unique // Mã code ngắn để học sinh vào làm bài qua link
+  isPublished     Boolean  @default(false)
+  durationMinutes Int? // Giới hạn thời gian làm bài (phút); null = không giới hạn
+  createdAt       DateTime @default(now())
 
   teacher     Teacher        @relation(fields: [teacherId], references: [id])
   questions   ExamQuestion[]
@@ -61,7 +62,7 @@ model ExamQuestion {
   order      Int
 
   exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id])
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([examId, questionId])
 }
@@ -76,5 +77,5 @@ model Submission {
   totalPoints Int?
   submittedAt DateTime @default(now())
 
-  exam Exam @relation(fields: [examId], references: [id])
+  exam Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
 }

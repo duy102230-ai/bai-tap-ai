@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 type Question = {
   id: string;
@@ -14,11 +14,13 @@ export default function TakeExam({
   shareCode,
   title,
   description,
+  durationMinutes,
   questions,
 }: {
   shareCode: string;
   title: string;
   description: string | null;
+  durationMinutes: number | null;
   questions: Question[];
 }) {
   const [studentName, setStudentName] = useState("");
@@ -27,6 +29,18 @@ export default function TakeExam({
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; totalPoints: number } | null>(null);
   const [error, setError] = useState("");
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const answersRef = useRef(answers);
+  const studentNameRef = useRef(studentName);
+  const submittingRef = useRef(false);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  useEffect(() => {
+    studentNameRef.current = studentName;
+  }, [studentName]);
 
   function setAnswer(questionId: string, value: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -56,24 +70,58 @@ export default function TakeExam({
     }
   }
 
-  async function handleSubmit() {
+  const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     setError("");
     try {
       const res = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareCode, studentName, answers }),
+        body: JSON.stringify({
+          shareCode,
+          studentName: studentNameRef.current,
+          answers: answersRef.current,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Lỗi khi nộp bài.");
+        submittingRef.current = false;
         return;
       }
       setResult({ score: data.score, totalPoints: data.totalPoints });
     } finally {
       setSubmitting(false);
     }
+  }, [shareCode]);
+
+  useEffect(() => {
+    if (!started || !durationMinutes || result) return;
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev === null) return prev;
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [started, durationMinutes, result, handleSubmit]);
+
+  function startExam() {
+    setStarted(true);
+    if (durationMinutes) setSecondsLeft(durationMinutes * 60);
+  }
+
+  function formatTime(totalSeconds: number) {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
   if (result) {
@@ -97,9 +145,16 @@ export default function TakeExam({
   if (!started) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 mb-3">
-          📝 {questions.length} câu hỏi
-        </span>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+            📝 {questions.length} câu hỏi
+          </span>
+          {durationMinutes && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+              ⏱️ {durationMinutes} phút
+            </span>
+          )}
+        </div>
         <h1 className="text-xl font-bold text-slate-900 mb-1">{title}</h1>
         {description && <p className="text-slate-600 mb-4">{description}</p>}
         <label className="block text-sm font-medium text-slate-700 mb-1 mt-4">
@@ -113,7 +168,7 @@ export default function TakeExam({
         />
         <button
           disabled={!studentName.trim()}
-          onClick={() => setStarted(true)}
+          onClick={startExam}
           className="w-full rounded-full bg-blue-600 px-5 py-3 text-white font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:opacity-50 transition-all"
         >
           Bắt đầu làm bài →
@@ -124,7 +179,20 @@ export default function TakeExam({
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-slate-900 mb-6">{title}</h1>
+      <div className="sticky top-2 z-10 flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-slate-900">{title}</h1>
+        {secondsLeft !== null && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold shadow-sm ${
+              secondsLeft <= 60
+                ? "bg-red-100 text-red-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            ⏱️ {formatTime(secondsLeft)}
+          </span>
+        )}
+      </div>
       <div className="space-y-4 mb-6">
         {questions.map((q, i) => (
           <div key={q.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

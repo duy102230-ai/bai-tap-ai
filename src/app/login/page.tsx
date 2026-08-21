@@ -74,10 +74,10 @@ export default function LoginPage() {
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Email
+              Tên đăng nhập
             </label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
